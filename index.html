@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Launcher</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        #map {
+            height: 50vh;
+            width: 100%;
+        }
+        .controls {
+            position: absolute;
+            top: 60vh;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 9999;
+            width: 300px;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .fact {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .fact img {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
+        .fact h4 {
+            font-size: 18px;
+            margin: 0;
+            color: #333;
+        }
+        .fact p {
+            font-size: 14px;
+            color: #555;
+        }
+        #result button {
+            background-color: #28a745;
+        }
+        #result button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div class="controls">
+        <h3>Asteroid Launcher</h3>
+        <button class="btn" id="launch-btn">Launch Asteroid</button>
+        <div id="result"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([20, 0], 2); // Initial map view
+
+        // OpenStreetMap Tile Layer (HTTPS)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var selectedLocation = null;
+        var marker = null;
+
+        // Add click event on the map to select a location
+        map.on('click', function(e) {
+            if (marker) {
+                map.removeLayer(marker);  // Remove previous marker if any
+            }
+            selectedLocation = e.latlng;
+            marker = L.marker(selectedLocation).addTo(map);
+            marker.bindPopup('Impact Location: ' + selectedLocation.toString()).openPopup();
+        });
+
+        // Launch asteroid and show details
+        document.getElementById('launch-btn').addEventListener('click', function() {
+            if (!selectedLocation) {
+                alert('Please select an impact location first!');
+                return;
+            }
+
+            // Example values for the asteroid impact
+            var craterSize = (3 * 1000) / 1000; // Example calculation for crater size
+            var fireballSize = craterSize * 2.2;
+            var shockwaveDistance = craterSize * 5;
+            var windSpeed = 1000 * 0.3;
+            var earthquakeMagnitude = Math.min((3 / 100) * 6, 9.5);
+
+            // Display the impact details in the result div
+            var resultHtml = `
+                <h4>Asteroid Impact Details:</h4>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/crater.jpg" alt="Crater">
+                    <div>
+                        <h4>Crater Size:</h4>
+                        <p>${craterSize.toFixed(1)} miles wide</p>
+                    </div>
+                </div>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/fireball.jpg" alt="Fireball">
+                    <div>
+                        <h4>Fireball Radius:</h4>
+                        <p>${fireballSize.toFixed(1)} miles</p>
+                    </div>
+                </div>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/pressure.jpg" alt="Shockwave">
+                    <div>
+                        <h4>Shockwave Range:</h4>
+                        <p>${shockwaveDistance.toFixed(1)} miles</p>
+                    </div>
+                </div>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/wind.jpg" alt="Wind Speed">
+                    <div>
+                        <h4>Peak Wind Speed:</h4>
+                        <p>${windSpeed.toFixed(1)} mph</p>
+                    </div>
+                </div>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/earthquake.jpg" alt="Earthquake">
+                    <div>
+                        <h4>Earthquake Magnitude:</h4>
+                        <p>${earthquakeMagnitude.toFixed(1)}</p>
+                    </div>
+                </div>
+                <button class="btn" id="launch-another-btn">Launch Another</button>
+            `;
+            document.getElementById('result').innerHTML = resultHtml;
+
+            // Reset location after launch
+            document.getElementById('launch-another-btn').addEventListener('click', function() {
+                // Reset map
+                map.setView([20, 0], 2);
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                selectedLocation = null;
+                document.getElementById('result').innerHTML = '';
+            });
+        });
+    </script>
+
+</body>
+</html>
