@@ -3,91 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asteroid Launcher</title>
+    <title>Asteroid Impact Simulation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
     <style>
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #f06, #48c6ef);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
+            background: linear-gradient(to bottom, #e66465, #9198e5);
+            color: white;
         }
         #map {
-            height: 100%;
-            width: 60%;
+            height: 60vh;
+            width: 100%;
         }
         .controls {
             position: absolute;
             top: 10px;
-            left: 65%;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
             z-index: 9999;
-            width: 350px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            font-size: 16px;
+            width: 300px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
         }
-        h3 {
-            text-align: center;
-            font-size: 28px;
-            color: #fff;
-            font-family: 'Comic Sans MS', cursive;
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
         }
-        .slider-container {
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .slider-label {
-            color: #fff;
-            font-size: 18px;
-            font-weight: bold;
+        .btn:hover {
+            background-color: #0056b3;
         }
         .slider {
             width: 100%;
-            margin-top: 5px;
         }
-        .slider-value {
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .btn {
-            background-color: #00bcd4;
-            color: #fff;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 18px;
-            margin-top: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #0097a7;
-        }
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            border: 1px solid #00bcd4;
-            background-color: #f1f1f1;
-            font-size: 16px;
-        }
-        .impact-details {
+        #result {
             margin-top: 20px;
-            font-size: 16px;
+            background-color: #ffffff;
             color: #333;
-            line-height: 1.6;
-        }
-        .impact-details h4 {
-            color: #00bcd4;
-            font-size: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .fact {
             display: flex;
@@ -102,17 +64,10 @@
         .fact h4 {
             font-size: 18px;
             margin: 0;
-            color: #333;
         }
         .fact p {
             font-size: 14px;
             color: #555;
-        }
-        #result button {
-            background-color: #28a745;
-        }
-        #result button:hover {
-            background-color: #218838;
         }
     </style>
 </head>
@@ -121,41 +76,25 @@
     <div id="map"></div>
 
     <div class="controls">
-        <h3>Asteroid Launcher</h3>
-
-        <!-- Asteroid Size Control -->
-        <div class="slider-container">
-            <label class="slider-label" for="asteroid-size">Asteroid Size (miles):</label>
-            <input type="range" id="asteroid-size" class="slider" min="0.1" max="10" step="0.1" value="1">
-            <div class="slider-value" id="size-value">1 mile</div>
-        </div>
-
-        <!-- Asteroid Speed Control -->
-        <div class="slider-container">
-            <label class="slider-label" for="asteroid-speed">Speed (mph):</label>
-            <input type="range" id="asteroid-speed" class="slider" min="1000" max="250000" step="1000" value="20000">
-            <div class="slider-value" id="speed-value">20000 mph</div>
-        </div>
-
-        <!-- Asteroid Material Control -->
-        <div class="slider-container">
-            <label class="slider-label" for="material-select">Select Asteroid Material:</label>
-            <select id="material-select">
-                <option value="rock">Rock</option>
-                <option value="iron">Iron</option>
-                <option value="comet">Comet</option>
-                <option value="gold">Gold</option>
-                <option value="carbon">Carbon</option>
-            </select>
-        </div>
-
+        <h3>Asteroid Impact</h3>
+        <p><strong>Size</strong></p>
+        <input type="range" id="size" class="slider" min="1" max="1000" step="1" value="100">
+        <p><strong>Speed</strong></p>
+        <input type="range" id="speed" class="slider" min="1000" max="250000" step="1000" value="25000">
+        <p><strong>Material</strong></p>
+        <select id="material">
+            <option value="rock">Rock</option>
+            <option value="iron">Iron</option>
+            <option value="gold">Gold</option>
+            <option value="carbon">Carbon</option>
+        </select>
         <button class="btn" id="launch-btn">Launch Asteroid</button>
         <div id="result"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script>
-        var map = L.map('map').setView([20, 0], 2); // Initial map view
+        var map = L.map('map').setView([20, 0], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -166,22 +105,11 @@
 
         map.on('click', function(e) {
             if (marker) {
-                map.removeLayer(marker);  // Remove previous marker if any
+                map.removeLayer(marker);
             }
             selectedLocation = e.latlng;
             marker = L.marker(selectedLocation).addTo(map);
             marker.bindPopup('Impact Location: ' + selectedLocation.toString()).openPopup();
-        });
-
-        // Update Size and Speed values in UI
-        document.getElementById('asteroid-size').addEventListener('input', function() {
-            var size = document.getElementById('asteroid-size').value;
-            document.getElementById('size-value').textContent = size + " miles";
-        });
-
-        document.getElementById('asteroid-speed').addEventListener('input', function() {
-            var speed = document.getElementById('asteroid-speed').value;
-            document.getElementById('speed-value').textContent = speed + " mph";
         });
 
         document.getElementById('launch-btn').addEventListener('click', function() {
@@ -190,53 +118,60 @@
                 return;
             }
 
-            var size = parseFloat(document.getElementById('asteroid-size').value);
-            var speed = parseInt(document.getElementById('asteroid-speed').value);
-            var material = document.getElementById('material-select').value;
-            var population = getPopulationAtLocation(selectedLocation.lat, selectedLocation.lng);
+            var size = parseInt(document.getElementById('size').value);
+            var speed = parseInt(document.getElementById('speed').value);
+            var material = document.getElementById('material').value;
 
-            var energyReleased = calculateEnergy(size, speed, material);
-            var craterSize = calculateCraterSize(energyReleased);
-            var fireballRadius = calculateFireballRadius(energyReleased);
-            var windSpeed = calculateWindSpeed(energyReleased);
-            var earthquakeMagnitude = calculateEarthquakeMagnitude(energyReleased);
-            var tsunamiImpact = size > 1 && isOceanImpact(selectedLocation.lat, selectedLocation.lng);
+            var energy = calculateEnergy(size, speed, material);
+            var craterSize = calculateCraterSize(energy);
+            var fireballRadius = calculateFireballRadius(energy);
+            var windSpeed = calculateWindSpeed(energy);
+            var earthquakeMagnitude = calculateEarthquakeMagnitude(energy);
+            var tsunamiImpact = isOceanImpact(selectedLocation.lat, selectedLocation.lng);
 
+            var population = getPopulation(selectedLocation.lat, selectedLocation.lng);
             var deathToll = calculateDeathToll(population, craterSize, fireballRadius, windSpeed, tsunamiImpact);
-            deathToll = Math.min(deathToll, 500000000); // Maximum of 500 million deaths
 
             var resultHtml = `
-                <h4>Asteroid Impact Details:</h4>
-                <div class="impact-details">
-                    <h4>Asteroid Size: ${size} miles</h4>
-                    <h4>Impact Speed: ${speed} mph</h4>
-                    <h4>Material: ${material}</h4>
-                    <p><strong>Crater Size:</strong> ${craterSize.toFixed(2)} miles wide</p>
-                    <p><strong>Fireball Radius:</strong> ${fireballRadius.toFixed(2)} miles</p>
-                    <p><strong>Peak Wind Speed:</strong> ${windSpeed.toFixed(1)} mph</p>
-                    <p><strong>Earthquake Magnitude:</strong> ${earthquakeMagnitude.toFixed(1)}</p>
-                    ${tsunamiImpact ? `<p><strong>Tsunami Impact:</strong> Tsunami waves up to 50 meters high could affect coastal regions.</p>` : ''}
-                    <p><strong>Estimated Death Toll:</strong> ${deathToll.toLocaleString()} people</p>
+                <h4>Impact Statistics:</h4>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/crater.jpg" alt="Crater">
+                    <div>
+                        <h4>Crater Size:</h4>
+                        <p>${craterSize.toFixed(1)} miles wide</p>
+                    </div>
                 </div>
-                <button class="btn" id="launch-another-btn">Launch Another Asteroid</button>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/fireball.jpg" alt="Fireball">
+                    <div>
+                        <h4>Fireball Radius:</h4>
+                        <p>${fireballRadius.toFixed(1)} miles</p>
+                    </div>
+                </div>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/wind.jpg" alt="Wind Speed">
+                    <div>
+                        <h4>Peak Wind Speed:</h4>
+                        <p>${windSpeed.toFixed(1)} mph</p>
+                    </div>
+                </div>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/earthquake.jpg" alt="Earthquake">
+                    <div>
+                        <h4>Earthquake Magnitude:</h4>
+                        <p>${earthquakeMagnitude.toFixed(1)}</p>
+                    </div>
+                </div>
+                <div class="fact">
+                    <img src="https://neal.fun/asteroid-launcher/people.jpg" alt="Death Toll">
+                    <div>
+                        <h4>Estimated Death Toll:</h4>
+                        <p>${deathToll.toLocaleString()} people</p>
+                    </div>
+                </div>
             `;
-
             document.getElementById('result').innerHTML = resultHtml;
-
-            document.getElementById('launch-another-btn').addEventListener('click', function() {
-                map.setView([20, 0], 2);
-                if (marker) {
-                    map.removeLayer(marker);
-                }
-                selectedLocation = null;
-                document.getElementById('result').innerHTML = '';
-            });
         });
-
-        function getPopulationAtLocation(lat, lon) {
-            // Placeholder population calculation based on location.
-            return 1000000000; // 1 billion people globally
-        }
 
         function calculateEnergy(size, speed, material) {
             var density = material === 'rock' ? 2.7 : material === 'iron' ? 7.9 : material === 'gold' ? 19.3 : material === 'carbon' ? 2.2 : 1.5;
@@ -244,29 +179,38 @@
         }
 
         function calculateCraterSize(energy) {
-            return Math.pow(energy, 1 / 3);
+            return Math.min(50, Math.pow(energy, 1 / 4));
         }
 
         function calculateFireballRadius(energy) {
-            return Math.pow(energy, 1 / 4);
+            return Math.min(100, Math.pow(energy, 1 / 5));
         }
 
         function calculateWindSpeed(energy) {
-            return Math.sqrt(energy / 1000);
+            return Math.min(500, Math.sqrt(energy / 5000));
         }
 
         function calculateEarthquakeMagnitude(energy) {
-            return Math.log10(energy) / 2.5;
+            return Math.min(9.0, Math.log10(energy) / 2.5);
         }
 
         function isOceanImpact(lat, lon) {
-            // Placeholder check if the impact is over the ocean
-            return lat < 0;
+            return lat < 0; // Simple check for ocean impact
+        }
+
+        function getPopulation(lat, lon) {
+            // Placeholder population calculation, you can implement a more realistic model
+            return 1000000; // Assume 1 million people affected for demo purposes
         }
 
         function calculateDeathToll(population, craterSize, fireballRadius, windSpeed, tsunamiImpact) {
-            // Placeholder formula for calculating death toll
-            return population * (craterSize / 10) + (fireballRadius / 5) + (windSpeed / 100) + (tsunamiImpact ? 10000000 : 0);
+            const impactZone = fireballRadius * 1.5 + craterSize * 2;
+            const populationAffected = Math.min(population, Math.floor(population * (impactZone / 100)));
+            let deathToll = Math.floor(populationAffected * 0.001 * (craterSize + fireballRadius) * (windSpeed / 1000));
+            if (tsunamiImpact) {
+                deathToll += Math.floor(population * 0.00005);
+            }
+            return Math.min(deathToll, 500000000);
         }
     </script>
 </body>
